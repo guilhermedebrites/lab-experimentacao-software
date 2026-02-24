@@ -1,0 +1,5 @@
+services:
+  gh-metrics:
+    build: .
+    env_file:
+      - .env
