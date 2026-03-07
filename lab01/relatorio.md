@@ -9,6 +9,24 @@ A popularidade foi definida utilizando o número de estrelas do GitHub como prox
 
 ---
 
+Hipóteses Informais
+
+Antes da coleta de dados, foram estabelecidas as seguintes hipóteses
+baseadas em observações da comunidade open-source:
+
+H1 - Repositórios populares tendem a ser mais antigos e maduros.
+
+H2 - Repositórios populares recebem grande volume de contribuições externas.
+
+H3 - Projetos populares tendem a lançar releases com frequência.
+
+H4 - Projetos populares apresentam atividade recente e manutenção ativa.
+
+H5 - A maioria dos repositórios populares utiliza linguagens amplamente
+adotadas pela comunidade de desenvolvimento.
+
+H6 - Projetos populares possuem alta taxa de resolução de issues.
+
 # Metodologia
 
 A coleta de dados foi realizada utilizando a GitHub GraphQL API.
