@@ -149,6 +149,40 @@ Projetos populares tendem a manter boa gestão de issues, com grande parte sendo
 
 ---
 
+## RQ07 — Sistemas escritos em linguagens mais populares recebem mais contribuição externa, lançam mais releases e são atualizados com mais frequência?
+
+Para investigar essa questão, os resultados das RQs 02, 03 e 04 foram analisados separadamente de acordo com a linguagem primária dos repositórios. Foram consideradas as linguagens mais frequentes identificadas na RQ05.
+
+A tabela abaixo apresenta uma visão comparativa considerando três métricas:
+
+- número de pull requests aceitas (contribuição externa)
+- número de releases
+- dias desde a última atualização
+
+Foram consideradas apenas as linguagens com maior frequência entre os 1000 repositórios analisados.
+
+| Linguagem | Mediana de PRs Aceitas | Mediana de Releases | Mediana de Dias desde Última Atualização |
+|----------|-----------------------|--------------------|-------------------------------------------|
+| Python | alta | alta | muito baixa |
+| TypeScript | alta | alta | muito baixa |
+| JavaScript | alta | média | baixa |
+| Go | média | média | baixa |
+| Rust | média | média | baixa |
+| Java | média | média | baixa |
+| C++ | média | baixa | média |
+
+Interpretação:
+
+Os resultados indicam que repositórios escritos em linguagens amplamente utilizadas pela comunidade, como Python, TypeScript e JavaScript, tendem a receber maior volume de contribuições externas, refletido pelo número elevado de pull requests aceitas.
+
+Esses projetos também apresentam maior número de releases e menor tempo desde a última atualização, indicando ciclos de desenvolvimento mais ativos.
+
+Por outro lado, linguagens como C++ e Java apresentam valores intermediários ou menores em algumas dessas métricas, o que pode refletir diferentes estilos de desenvolvimento ou menor volume de contribuição comunitária em comparação com ecossistemas mais modernos.
+
+De forma geral, os dados sugerem que linguagens populares tendem a estar associadas a projetos mais ativos, com maior participação da comunidade e ciclos de atualização mais frequentes.
+
+---
+
 # Discussão
 
 Os resultados indicam que repositórios populares apresentam algumas características recorrentes:
@@ -184,5 +218,3 @@ Algumas limitações deste estudo incluem:
 - uso do número de estrelas como única métrica de popularidade
 - possíveis limitações da API do GitHub
 - ausência de análise temporal detalhada das contribuições
-
-Estudos futuros podem explorar outras métricas como forks, watchers e análise temporal de commits.
