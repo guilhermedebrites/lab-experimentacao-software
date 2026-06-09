@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stack Overflow Developer Survey 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #0D9488;
+    --primary-dark: #0F766E;
+    --primary-darker: #115E59;
+    --secondary: #F97316;
+    --bg: #F8F9FA;
+    --card: #FFFFFF;
+    --text: #1E293B;
+    --text-muted: #64748B;
+    --border: #E2E8F0;
+    --radius: 12px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --shadow-md: 0 4px 24px rgba(0,0,0,0.10);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── NAVBAR ── */
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0 24px;
+    height: 56px;
+  }
+
+  .nav-tab {
+    padding: 8px 20px;
+    border: none;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all .2s;
+  }
+
+  .nav-tab:hover { background: #F1F5F9; color: var(--text); }
+  .nav-tab.active { background: var(--primary); color: #fff; }
+
+  /* ── HEADER ── */
+  .hero {
+    background: linear-gradient(135deg, #0F2027 0%, #0D4A47 60%, #0D9488 100%);
+    color: #fff;
+    padding: 64px 32px 48px;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-size: clamp(24px, 4vw, 42px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+  }
+
+  .hero p {
+    font-size: clamp(14px, 2vw, 18px);
+    opacity: .85;
+    max-width: 680px;
+    margin: 0 auto 28px;
+    line-height: 1.6;
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .badge {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* ── METRICS ── */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 32px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .metric-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 4px solid var(--primary);
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .metric-card:nth-child(2) { border-top-color: var(--secondary); }
+  .metric-card:nth-child(3) { border-top-color: #10B981; }
+  .metric-card:nth-child(4) { border-top-color: #F59E0B; }
+
+  .metric-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+  .metric-value { font-size: 28px; font-weight: 800; color: var(--primary); }
+  .metric-card:nth-child(2) .metric-value { color: var(--secondary); }
+  .metric-card:nth-child(3) .metric-value { color: #10B981; }
+  .metric-card:nth-child(4) .metric-value { color: #F59E0B; }
+  .metric-sub { font-size: 12px; color: var(--text-muted); }
+
+  /* ── SECTIONS ── */
+  .section { display: none; padding: 32px; max-width: 1280px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .section-subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  /* ── FILTER BAR ── */
+  .filter-bar {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .filter-select {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    transition: border-color .2s;
+  }
+
+  .filter-select:focus { border-color: var(--primary); }
+
+  .toggle-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .toggle-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 7px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .toggle-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+  }
+
+  /* ── CHARTS GRID ── */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .chart-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    transition: box-shadow .2s;
+  }
+
+  .chart-card:hover { box-shadow: var(--shadow-md); }
+  .chart-card.full { grid-column: 1 / -1; }
+
+  .chart-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .chart-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  /* ── INSIGHT BOX ── */
+  .insight-box {
+    background: linear-gradient(135deg, #F0FDFA 0%, #FFF7ED 100%);
+    border: 1px solid #99F6E4;
+    border-left: 4px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-top: 24px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .insight-box strong { color: var(--primary); }
+
+  /* ── RQ HEADER ── */
+  .rq-header {
+    background: linear-gradient(135deg, #F0FDFA, #FFF7ED);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid #99F6E4;
+  }
+
+  .rq-tag {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 100px;
+    letter-spacing: .5px;
+    margin-bottom: 10px;
+  }
+
+  .rq-question {
+    font-size: clamp(15px, 2vw, 18px);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #0F2027;
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    padding: 40px 32px;
+    margin-top: 48px;
+    font-size: 13px;
+    line-height: 2;
+  }
+
+  footer strong { color: #fff; }
+
+  footer a {
+    color: #A5B4FC;
+    text-decoration: none;
+  }
+
+  .footer-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    justify-content: center;
+    max-width: 900px;
+    margin: 0 auto 24px;
+    text-align: left;
+  }
+
+  .footer-col { flex: 1; min-width: 200px; }
+  .footer-col h4 { color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .footer-col p { font-size: 12px; line-height: 1.9; }
+
+  .footer-divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin: 24px 0 16px;
+  }
+
+  @media (max-width: 640px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .section { padding: 16px; }
+    .metrics { padding: 16px; }
+    .hero { padding: 40px 20px 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <button class="nav-tab active" onclick="showTab('caracterizacao')">Caracterização</button>
+  <button class="nav-tab" onclick="showTab('rq1')">RQ1 — Linguagens × Trabalho</button>
+  <button class="nav-tab" onclick="showTab('rq2')">RQ2 — Experiência × IA</button>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <h1>Stack Overflow Developer Survey 2025</h1>
+  <p>Dashboard interativo explorando o perfil global de desenvolvedores e sua relação com IA</p>
+  <div class="badges">
+    <span class="badge">📊 25.500 respondentes analisados</span>
+    <span class="badge">🔢 172 variáveis</span>
+    <span class="badge">📁 Fonte: Stack Overflow</span>
+    <span class="badge">📅 Ano: 2025</span>
+  </div>
+</header>
+
+<!-- METRIC CARDS -->
+<div class="metrics">
+  <div class="metric-card">
+    <div class="metric-label">Linguagem mais usada</div>
+    <div class="metric-value">JavaScript</div>
+    <div class="metric-sub">62% dos respondentes</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Modelo de trabalho líder</div>
+    <div class="metric-value">Remoto</div>
+    <div class="metric-sub">33% dos respondentes</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Sentimento positivo sobre IA</div>
+    <div class="metric-value">77%</div>
+    <div class="metric-sub">Favorável ou muito favorável</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">País com mais devs</div>
+    <div class="metric-value">EUA</div>
+    <div class="metric-sub">21,5% dos respondentes</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ SEÇÃO 1 ══════════════════════════ -->
+<section id="caracterizacao" class="section active">
+  <div class="section-title">Caracterização do Dataset</div>
+  <div class="section-subtitle">Visão geral do perfil dos respondentes da pesquisa Stack Overflow 2025</div>
+
+  <!-- FILTRO -->
+  <div class="filter-bar">
+    <span class="filter-label">Filtrar por modelo de trabalho:</span>
+    <select class="filter-select" id="workFilter" onchange="applyWorkFilter()">
+      <option value="all">Todos</option>
+      <option value="Remoto">Remoto</option>
+      <option value="Presencial">Presencial</option>
+      <option value="Híbrido (+ presencial)">Híbrido (+ presencial)</option>
+      <option value="Híbrido (+ flexível)">Híbrido (+ flexível)</option>
+      <option value="Escolha própria">Escolha própria</option>
+    </select>
+  </div>
+
+  <!-- GRID SUPERIOR -->
+  <div class="charts-grid">
+    <!-- Faixa Etária -->
+    <div class="chart-card">
+      <div class="chart-title">Distribuição por Faixa Etária</div>
+      <div class="chart-subtitle">Quantidade de respondentes por grupo etário</div>
+      <div class="chart-wrap"><canvas id="ageChart" height="260"></canvas></div>
+    </div>
+
+    <!-- Educação -->
+    <div class="chart-card">
+      <div class="chart-title">Nível de Educação</div>
+      <div class="chart-subtitle">Distribuição por escolaridade dos respondentes</div>
+      <div class="chart-wrap"><canvas id="eduChart" height="260"></canvas></div>
+    </div>
+
+    <!-- Modelo de Trabalho -->
+    <div class="chart-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div style="width:100%;">
+        <div class="chart-title">Modelo de Trabalho</div>
+        <div class="chart-subtitle">Distribuição dos respondentes por regime de trabalho</div>
+      </div>
+      <div class="chart-wrap" style="max-width:300px;width:100%;margin:auto;"><canvas id="workChart" height="220"></canvas></div>
+    </div>
+
+    <!-- Top Países -->
+    <div class="chart-card">
+      <div class="chart-title">Top 10 Países com Mais Respondentes</div>
+      <div class="chart-subtitle">Brasil destacado em cor laranja</div>
+      <div class="chart-wrap"><canvas id="countryChart" height="260"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Linguagens — full width -->
+  <div class="chart-card full">
+    <div class="chart-title">Linguagens de Programação Mais Usadas</div>
+    <div class="chart-subtitle">Top 10 — múltipla escolha; um respondente pode usar mais de uma linguagem</div>
+    <div class="chart-wrap" style="max-width:860px;margin:auto;"><canvas id="langChart" height="160"></canvas></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ SEÇÃO RQ1 ══════════════════════════ -->
+<section id="rq1" class="section">
+  <div class="rq-header">
+    <span class="rq-tag">RQ1</span>
+    <div class="rq-question">As linguagens mais utilizadas variam conforme o modelo de trabalho?</div>
+  </div>
+
+  <!-- FILTRO -->
+  <div class="filter-bar">
+    <span class="filter-label">Selecionar modelos:</span>
+    <div class="toggle-group" id="rq1Toggles">
+      <button class="toggle-btn active" data-work="Remoto" onclick="toggleRQ1(this)">Remoto</button>
+      <button class="toggle-btn active" data-work="Presencial" onclick="toggleRQ1(this)">Presencial</button>
+      <button class="toggle-btn active" data-work="Híbrido (+ presencial)" onclick="toggleRQ1(this)">Híbrido (+ presencial)</button>
+      <button class="toggle-btn active" data-work="Híbrido (+ flexível)" onclick="toggleRQ1(this)">Híbrido (+ flexível)</button>
+      <button class="toggle-btn active" data-work="Escolha própria" onclick="toggleRQ1(this)">Escolha própria</button>
+    </div>
+  </div>
+
+  <div class="charts-grid" style="grid-template-columns:repeat(2,1fr);">
+    <div class="chart-card">
+      <div class="chart-title">Linguagens × Modelo de Trabalho (100%)</div>
+      <div class="chart-subtitle">Proporção de cada modelo de trabalho por linguagem</div>
+      <div class="chart-wrap"><canvas id="rq1Chart" height="260"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Popularidade × Trabalho Remoto por Linguagem</div>
+      <div class="chart-subtitle">Cada ponto é uma linguagem. Tamanho = nº de usuários. Eixo X = % remoto.</div>
+      <div class="chart-wrap"><canvas id="rq1ScatterChart" height="260"></canvas></div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    💡 <strong>Insight:</strong> A distribuição entre modelos de trabalho é notavelmente homogênea em todas as linguagens analisadas.
+    <strong>TypeScript</strong> lidera em trabalho remoto (36,3%), seguida de <strong>JavaScript</strong> (34,8%). No outro extremo,
+    <strong>C++</strong> (25,0%) e <strong>Java</strong> (28,4%) concentram proporcionalmente mais trabalho presencial —
+    possivelmente pela natureza dos setores que as utilizam, como indústria, sistemas embarcados e finanças.
+  </div>
+</section>
+
+<!-- ══════════════════════════ SEÇÃO RQ2 ══════════════════════════ -->
+<section id="rq2" class="section">
+  <div class="rq-header">
+    <span class="rq-tag">RQ2</span>
+    <div class="rq-question">Desenvolvedores com mais experiência confiam mais nas ferramentas de IA?</div>
+  </div>
+
+  <!-- FILTRO -->
+  <div class="filter-bar">
+    <span class="filter-label">Selecionar faixas de experiência:</span>
+    <div class="toggle-group" id="rq2Toggles">
+      <button class="toggle-btn active" data-exp="0-2 anos" onclick="toggleRQ2(this)">0-2 anos</button>
+      <button class="toggle-btn active" data-exp="3-5 anos" onclick="toggleRQ2(this)">3-5 anos</button>
+      <button class="toggle-btn active" data-exp="6-10 anos" onclick="toggleRQ2(this)">6-10 anos</button>
+      <button class="toggle-btn active" data-exp="11-20 anos" onclick="toggleRQ2(this)">11-20 anos</button>
+      <button class="toggle-btn active" data-exp="20+ anos" onclick="toggleRQ2(this)">20+ anos</button>
+    </div>
+  </div>
+
+  <div class="charts-grid" style="grid-template-columns:repeat(2,1fr);">
+    <div class="chart-card">
+      <div class="chart-title">Sentimento sobre IA por Faixa de Experiência</div>
+      <div class="chart-subtitle">Proporção (100%) dos sentimentos em relação às ferramentas de IA</div>
+      <div class="chart-wrap"><canvas id="rq2SentChart" height="220"></canvas></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Confiança na Precisão da IA por Faixa de Experiência</div>
+      <div class="chart-subtitle">Proporção (100%) dos níveis de confiança na acurácia das respostas de IA</div>
+      <div class="chart-wrap"><canvas id="rq2TrustChart" height="220"></canvas></div>
+    </div>
+
+    <div class="chart-card full">
+      <div class="chart-title">Distribuição de Experiência por Nível de Confiança na IA</div>
+      <div class="chart-subtitle">Cada caixa representa a distribuição de anos de experiência dos devs naquele grupo de confiança</div>
+      <div class="chart-wrap" style="max-width:780px;margin:auto;"><canvas id="rq2BoxChart" height="160"></canvas></div>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    💡 <strong>Insight:</strong> Surpreendentemente, a experiência profissional não determina maior confiança na IA.
+    A proporção de desconfiança é consistente em todas as faixas (~40-45%), sugerindo que o ceticismo em relação à IA
+    é <strong>transversal à senioridade</strong> — tanto iniciantes quanto desenvolvedores sênior com 20+ anos demonstram
+    padrões similares de desconfiança.
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h4>Equipe</h4>
+      <p>
+        Amanda Bueno Campos Peixoto<br>
+        Guilherme Gomes de Brites<br>
+        Lucas Cerqueira Azevedo
+      </p>
+    </div>
+    <div class="footer-col">
+      <h4>Disciplina</h4>
+      <p>
+        Laboratório de Experimentação de Software — LAB04<br>
+        Prof. Danilo de Quadros<br>
+        PUC Minas — Engenharia de Software — 2025
+      </p>
+    </div>
+    <div class="footer-col">
+      <h4>Fonte dos Dados</h4>
+      <p>
+        Stack Overflow Developer Survey 2025<br>
+        <a href="https://survey.stackoverflow.co/2025" target="_blank">survey.stackoverflow.co/2025</a>
+      </p>
+    </div>
+  </div>
+  <hr class="footer-divider">
+  <p style="max-width:760px;margin:0 auto 8px;font-size:11px;opacity:.6;line-height:1.7;">* Foram considerados apenas os 25.500 respondentes (de 49.191 totais) que preencheram completamente as variáveis analisadas: modelo de trabalho, sentimento sobre IA, confiança em IA, faixa etária e anos de experiência.</p>
+  <p>Dashboard desenvolvido para apresentação acadêmica &mdash; 2025</p>
+</footer>
+
+<script>
+Chart.register(ChartDataLabels);
+
+// ══════════════════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════════════════
+
+const AGE_RAW = [
+  {label:"18-24", value:2773},
+  {label:"25-34", value:9189},
+  {label:"35-44", value:7941},
+  {label:"45-54", value:3773},
+  {label:"55-64", value:1526},
+  {label:"65+",   value:298}
+];
+
+const EDU_RAW = [
+  {label:"Bacharelado",          value:11177},
+  {label:"Mestrado",             value:7494},
+  {label:"Faculdade incompleta", value:2898},
+  {label:"Doutorado/Prof.",      value:1543},
+  {label:"Ensino médio",         value:1192},
+  {label:"Técnico/Assoc.",       value:813},
+  {label:"Ensino fundamental",   value:110}
+];
+
+const WORK_RAW = [
+  {label:"Remoto",                value:8404},
+  {label:"Híbrido (+ presencial)",value:5065},
+  {label:"Híbrido (+ flexível)",  value:4538},
+  {label:"Presencial",            value:4151},
+  {label:"Escolha própria",       value:3342}
+];
+
+const COUNTRY_RAW = [
+  {label:"EUA",         value:5472},
+  {label:"Alemanha",    value:2375},
+  {label:"Reino Unido", value:1558},
+  {label:"Índia",       value:1510},
+  {label:"França",      value:1018},
+  {label:"Canadá",      value:960},
+  {label:"Ucrânia",     value:708},
+  {label:"Holanda",     value:679},
+  {label:"Itália",      value:606},
+  {label:"Brasil",      value:594}
+];
+
+const LANG_RAW = [
+  {label:"JavaScript", value:15810},
+  {label:"HTML/CSS",   value:14634},
+  {label:"SQL",        value:14443},
+  {label:"Python",     value:13746},
+  {label:"Bash/Shell", value:11807},
+  {label:"TypeScript", value:10823},
+  {label:"C#",         value:6924},
+  {label:"Java",       value:6866},
+  {label:"PowerShell", value:5866},
+  {label:"C++",        value:5107}
+];
+
+// RQ1 data
+const RQ1_DATA = [
+  {lang:"JavaScript",  "Remoto":5503,"Presencial":2407,"Híbrido (+ presencial)":2997,"Híbrido (+ flexível)":2796,"Escolha própria":2107},
+  {lang:"HTML/CSS",    "Remoto":4951,"Presencial":2303,"Híbrido (+ presencial)":2794,"Híbrido (+ flexível)":2599,"Escolha própria":1987},
+  {lang:"SQL",         "Remoto":4884,"Presencial":2159,"Híbrido (+ presencial)":2832,"Híbrido (+ flexível)":2622,"Escolha própria":1946},
+  {lang:"Python",      "Remoto":4176,"Presencial":2347,"Híbrido (+ presencial)":2851,"Híbrido (+ flexível)":2488,"Escolha própria":1884},
+  {lang:"Bash/Shell",  "Remoto":3777,"Presencial":1657,"Híbrido (+ presencial)":2393,"Híbrido (+ flexível)":2226,"Escolha própria":1754},
+  {lang:"TypeScript",  "Remoto":3925,"Presencial":1396,"Híbrido (+ presencial)":2027,"Híbrido (+ flexível)":2004,"Escolha própria":1471},
+  {lang:"C#",          "Remoto":2107,"Presencial":1120,"Híbrido (+ presencial)":1506,"Híbrido (+ flexível)":1287,"Escolha própria":904}
+];
+
+const RQ1_WORK_MODELS = ["Remoto","Presencial","Híbrido (+ presencial)","Híbrido (+ flexível)","Escolha própria"];
+const RQ1_COLORS = ["#0D9488","#F97316","#6366F1","#F59E0B","#EC4899"];
+
+// RQ2 data
+const RQ2_SENTIMENT = {
+  "0-2 anos":  {"Muito favorável":493,  "Favorável":931,  "Indiferente":378,"Desfavorável":269,"Muito desfavorável":213},
+  "3-5 anos":  {"Muito favorável":948,  "Favorável":1688, "Indiferente":727,"Desfavorável":442,"Muito desfavorável":347},
+  "6-10 anos": {"Muito favorável":1382, "Favorável":2334, "Indiferente":939,"Desfavorável":663,"Muito desfavorável":529},
+  "11-20 anos":{"Muito favorável":1817, "Favorável":2833, "Indiferente":1300,"Desfavorável":776,"Muito desfavorável":730},
+  "20+ anos":  {"Muito favorável":1278, "Favorável":1920, "Indiferente":1106,"Desfavorável":563,"Muito desfavorável":448}
+};
+
+const RQ2_TRUST = {
+  "0-2 anos":  {"Confia muito":70,  "Confia um pouco":697,  "Neutro":508,  "Desconfia um pouco":632,  "Desconfia muito":408},
+  "3-5 anos":  {"Confia muito":120, "Confia um pouco":1301, "Neutro":944,  "Desconfia um pouco":1092, "Desconfia muito":751},
+  "6-10 anos": {"Confia muito":178, "Confia um pouco":1798, "Neutro":1254, "Desconfia um pouco":1550, "Desconfia muito":1157},
+  "11-20 anos":{"Confia muito":202, "Confia um pouco":2284, "Neutro":1623, "Desconfia um pouco":2019, "Desconfia muito":1482},
+  "20+ anos":  {"Confia muito":125, "Confia um pouco":1535, "Neutro":1194, "Desconfia um pouco":1493, "Desconfia muito":1083}
+};
+
+const RQ2_SENT_KEYS  = ["Muito favorável","Favorável","Indiferente","Desfavorável","Muito desfavorável"];
+const RQ2_TRUST_KEYS = ["Confia muito","Confia um pouco","Neutro","Desconfia um pouco","Desconfia muito"];
+const LIKERT_COLORS  = ["#059669","#34D399","#94A3B8","#FB923C","#DC2626"];
+const EXP_BANDS      = ["0-2 anos","3-5 anos","6-10 anos","11-20 anos","20+ anos"];
+
+// RQ1 Scatter data
+const SCATTER_DATA = [
+  {lang:"JavaScript",  pct_remote:34.8, total:15810},
+  {lang:"HTML/CSS",    pct_remote:33.8, total:14634},
+  {lang:"SQL",         pct_remote:33.8, total:14443},
+  {lang:"Python",      pct_remote:30.4, total:13746},
+  {lang:"Bash/Shell",  pct_remote:32.0, total:11807},
+  {lang:"TypeScript",  pct_remote:36.3, total:10823},
+  {lang:"C#",          pct_remote:30.4, total:6924},
+  {lang:"Java",        pct_remote:28.4, total:6866},
+  {lang:"PowerShell",  pct_remote:28.1, total:5866},
+  {lang:"C++",         pct_remote:25.0, total:5107}
+];
+
+// RQ2 Boxplot data
+const BOXPLOT_DATA = {
+  "Confia muito":       {min:1, q1:5, median:10, q3:18, max:40, n:692},
+  "Confia um pouco":    {min:1, q1:5, median:11, q3:19, max:42, n:7605},
+  "Neutro":             {min:1, q1:5, median:11, q3:20, max:43, n:5512},
+  "Desconfia um pouco": {min:1, q1:5, median:11, q3:20, max:42, n:6777},
+  "Desconfia muito":    {min:1, q1:6, median:11, q3:20, max:43, n:4874}
+};
+
+// ══════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════
+
+function pct(v, total) { return ((v/total)*100).toFixed(1); }
+
+function makeTooltipPlugin(fmt) {
+  return {
+    callbacks: {
+      label: function(ctx) {
+        if (fmt === 'stacked') {
+          const total = ctx.chart.data.datasets.reduce((s,ds)=>s+(ds.data[ctx.dataIndex]||0),0);
+          const v = ctx.parsed.y ?? ctx.parsed.x ?? 0;
+          return ` ${ctx.dataset.label}: ${v.toLocaleString('pt-BR')} (${pct(v,total)}%)`;
+        }
+        if (fmt === 'stackedHoriz') {
+          const total = ctx.chart.data.datasets.reduce((s,ds)=>s+(ds.data[ctx.dataIndex]||0),0);
+          const v = ctx.parsed.x ?? 0;
+          return ` ${ctx.dataset.label}: ${v.toLocaleString('pt-BR')} (${pct(v,total)}%)`;
+        }
+        const v = ctx.raw;
+        const total = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+        return ` ${ctx.label || ctx.dataset.label}: ${v.toLocaleString('pt-BR')} (${pct(v,total)}%)`;
+      }
+    }
+  };
+}
+
+const BASE_OPTS = {
+  responsive: true,
+  plugins: {
+    legend: { display: false },
+    tooltip: { mode:'index', intersect:false }
+  }
+};
+
+// ══════════════════════════════════════════════════════════
+//  CHART INSTANCES
+// ══════════════════════════════════════════════════════════
+
+let charts = {};
+
+function destroyChart(key) {
+  if (charts[key]) { charts[key].destroy(); delete charts[key]; }
+}
+
+// ── Age Chart ──
+function buildAgeChart(data) {
+  destroyChart('age');
+  const total = data.reduce((s,d)=>s+d.value,0);
+  charts.age = new Chart(document.getElementById('ageChart'), {
+    type: 'bar',
+    data: {
+      labels: data.map(d=>d.label),
+      datasets: [{
+        data: data.map(d=>d.value),
+        backgroundColor: '#0D9488',
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      ...BASE_OPTS,
+      indexAxis: 'y',
+      layout: { padding: { right: 52 } },
+      plugins: {
+        legend: {display:false},
+        tooltip: makeTooltipPlugin('single'),
+        datalabels: {
+          anchor: 'end', align: 'end',
+          color: '#475569', font: { size: 11, weight: '600', family: 'Inter' },
+          formatter: v => v.toLocaleString('pt-BR')
+        }
+      },
+      scales: {
+        x: { grid:{color:'#F1F5F9'}, ticks:{color:'#64748B',font:{size:11}} },
+        y: { grid:{display:false}, ticks:{color:'#475569',font:{size:12,weight:'500'}} }
+      }
+    }
+  });
+}
+
+// ── Education Chart ──
+function buildEduChart(data) {
+  destroyChart('edu');
+  charts.edu = new Chart(document.getElementById('eduChart'), {
+    type: 'bar',
+    data: {
+      labels: data.map(d=>d.label),
+      datasets: [{
+        data: data.map(d=>d.value),
+        backgroundColor: '#F97316',
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      ...BASE_OPTS,
+      indexAxis: 'y',
+      layout: { padding: { right: 52 } },
+      plugins: {
+        legend: {display:false},
+        tooltip: makeTooltipPlugin('single'),
+        datalabels: {
+          anchor: 'end', align: 'end',
+          color: '#475569', font: { size: 11, weight: '600', family: 'Inter' },
+          formatter: v => v.toLocaleString('pt-BR')
+        }
+      },
+      scales: {
+        x: { grid:{color:'#F1F5F9'}, ticks:{color:'#64748B',font:{size:11}} },
+        y: { grid:{display:false}, ticks:{color:'#475569',font:{size:12,weight:'500'}} }
+      }
+    }
+  });
+}
+
+// ── Work Model Chart ──
+function buildWorkChart() {
+  destroyChart('work');
+  const COLORS = ['#0D9488','#F97316','#10B981','#F59E0B','#EC4899'];
+  charts.work = new Chart(document.getElementById('workChart'), {
+    type: 'doughnut',
+    data: {
+      labels: WORK_RAW.map(d=>d.label),
+      datasets: [{
+        data: WORK_RAW.map(d=>d.value),
+        backgroundColor: COLORS,
+        borderWidth: 2,
+        borderColor: '#fff',
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: { font:{size:11}, padding:12, boxWidth:12 }
+        },
+        tooltip: makeTooltipPlugin('single'),
+        datalabels: { display: false }
+      }
+    }
+  });
+}
+
+// ── Country Chart ──
+function buildCountryChart(data) {
+  destroyChart('country');
+  const colors = data.map(d => d.label === 'Brasil' ? '#F97316' : '#0D9488');
+  charts.country = new Chart(document.getElementById('countryChart'), {
+    type: 'bar',
+    data: {
+      labels: data.map(d=>d.label),
+      datasets: [{
+        data: data.map(d=>d.value),
+        backgroundColor: colors,
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      ...BASE_OPTS,
+      indexAxis: 'y',
+      layout: { padding: { right: 52 } },
+      plugins: {
+        legend: {display:false},
+        tooltip: makeTooltipPlugin('single'),
+        datalabels: {
+          anchor: 'end', align: 'end',
+          color: '#475569', font: { size: 11, weight: '600', family: 'Inter' },
+          formatter: v => v.toLocaleString('pt-BR')
+        }
+      },
+      scales: {
+        x: { grid:{color:'#F1F5F9'}, ticks:{color:'#64748B',font:{size:11}} },
+        y: { grid:{display:false}, ticks:{color:'#475569',font:{size:12,weight:'500'}} }
+      }
+    }
+  });
+}
+
+// ── Language Chart ──
+function buildLangChart(data) {
+  destroyChart('lang');
+  charts.lang = new Chart(document.getElementById('langChart'), {
+    type: 'bar',
+    data: {
+      labels: data.map(d=>d.label),
+      datasets: [{
+        data: data.map(d=>d.value),
+        backgroundColor: '#0D9488',
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      ...BASE_OPTS,
+      layout: { padding: { top: 24 } },
+      plugins: {
+        legend: {display:false},
+        tooltip: makeTooltipPlugin('single'),
+        datalabels: {
+          anchor: 'end', align: 'end',
+          color: '#475569', font: { size: 11, weight: '600', family: 'Inter' },
+          formatter: v => v.toLocaleString('pt-BR')
+        }
+      },
+      scales: {
+        x: { grid:{display:false}, ticks:{color:'#475569',font:{size:12,weight:'500'}} },
+        y: { grid:{color:'#F1F5F9'}, ticks:{color:'#64748B',font:{size:11}} }
+      }
+    }
+  });
+}
+
+// ── RQ1 Chart ──
+let rq1ActiveModels = new Set(RQ1_WORK_MODELS);
+
+function buildRQ1Chart() {
+  destroyChart('rq1');
+
+  const active = RQ1_WORK_MODELS.filter(m => rq1ActiveModels.has(m));
+  const labels = RQ1_DATA.map(d => d.lang);
+
+  const datasets = active.map((model, i) => {
+    const colorIdx = RQ1_WORK_MODELS.indexOf(model);
+    // compute normalized pct per language
+    const rawVals = RQ1_DATA.map(row => {
+      const rowTotal = active.reduce((s,m) => s + (row[m]||0), 0);
+      return rowTotal > 0 ? ((row[model]||0) / rowTotal * 100) : 0;
+    });
+    return {
+      label: model,
+      data: rawVals,
+      backgroundColor: RQ1_COLORS[colorIdx],
+      borderRadius: 4,
+      borderSkipped: false
+    };
+  });
+
+  charts.rq1 = new Chart(document.getElementById('rq1Chart'), {
+    type: 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: { font:{size:12}, padding:16, boxWidth:14 }
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: ctx => {
+              const v = ctx.parsed.y;
+              const row = RQ1_DATA[ctx.dataIndex];
+              const abs = row[ctx.dataset.label] || 0;
+              return ` ${ctx.dataset.label}: ${v.toFixed(1)}% (${abs.toLocaleString('pt-BR')})`;
+            }
+          }
+        },
+        datalabels: { display: false }
+      },
+      scales: {
+        x: { stacked: true, grid:{display:false}, ticks:{color:'#475569',font:{size:12,weight:'500'}} },
+        y: {
+          stacked: true,
+          min: 0, max: 100,
+          grid: {color:'#F1F5F9'},
+          ticks: { callback: v => v+'%', color:'#64748B', font:{size:11} }
+        }
+      }
+    }
+  });
+}
+
+function toggleRQ1(btn) {
+  const model = btn.dataset.work;
+  if (rq1ActiveModels.has(model)) {
+    if (rq1ActiveModels.size === 1) return; // keep at least 1
+    rq1ActiveModels.delete(model);
+    btn.classList.remove('active');
+  } else {
+    rq1ActiveModels.add(model);
+    btn.classList.add('active');
+  }
+  buildRQ1Chart();
+}
+
+// ── RQ2 Charts ──
+let rq2ActiveBands = new Set(EXP_BANDS);
+
+function buildRQ2SentChart() {
+  destroyChart('rq2Sent');
+  const active = EXP_BANDS.filter(b => rq2ActiveBands.has(b));
+
+  const datasets = RQ2_SENT_KEYS.map((key, i) => ({
+    label: key,
+    data: active.map(band => {
+      const row = RQ2_SENTIMENT[band];
+      const total = RQ2_SENT_KEYS.reduce((s,k)=>s+row[k],0);
+      return (row[key]/total*100);
+    }),
+    backgroundColor: LIKERT_COLORS[i],
+    borderRadius: i === 0 ? [4,4,0,0] : 0,
+    borderSkipped: false
+  }));
+
+  charts.rq2Sent = new Chart(document.getElementById('rq2SentChart'), {
+    type: 'bar',
+    data: { labels: active, datasets },
+    options: buildRQ2Opts()
+  });
+}
+
+function buildRQ2TrustChart() {
+  destroyChart('rq2Trust');
+  const active = EXP_BANDS.filter(b => rq2ActiveBands.has(b));
+
+  const datasets = RQ2_TRUST_KEYS.map((key, i) => ({
+    label: key,
+    data: active.map(band => {
+      const row = RQ2_TRUST[band];
+      const total = RQ2_TRUST_KEYS.reduce((s,k)=>s+row[k],0);
+      return (row[key]/total*100);
+    }),
+    backgroundColor: LIKERT_COLORS[i],
+    borderRadius: i === 0 ? [4,4,0,0] : 0,
+    borderSkipped: false
+  }));
+
+  charts.rq2Trust = new Chart(document.getElementById('rq2TrustChart'), {
+    type: 'bar',
+    data: { labels: active, datasets },
+    options: buildRQ2Opts()
+  });
+}
+
+function buildRQ2Opts() {
+  return {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom',
+        labels: { font:{size:12}, padding:16, boxWidth:14 }
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+        callbacks: {
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`
+        }
+      },
+      datalabels: { display: false }
+    },
+    scales: {
+      x: { stacked:true, grid:{display:false}, ticks:{color:'#475569',font:{size:12,weight:'500'}} },
+      y: {
+        stacked: true,
+        min: 0, max: 100,
+        grid: {color:'#F1F5F9'},
+        ticks: { callback: v=>v+'%', color:'#64748B', font:{size:11} }
+      }
+    }
+  };
+}
+
+function toggleRQ2(btn) {
+  const band = btn.dataset.exp;
+  if (rq2ActiveBands.has(band)) {
+    if (rq2ActiveBands.size === 1) return;
+    rq2ActiveBands.delete(band);
+    btn.classList.remove('active');
+  } else {
+    rq2ActiveBands.add(band);
+    btn.classList.add('active');
+  }
+  buildRQ2SentChart();
+  buildRQ2TrustChart();
+}
+
+// ── RQ1 Scatter (Bubble) Chart ──
+function buildRQ1ScatterChart() {
+  destroyChart('rq1Scatter');
+  const minT = Math.min(...SCATTER_DATA.map(d=>d.total));
+  const maxT = Math.max(...SCATTER_DATA.map(d=>d.total));
+  const normalize = t => 8 + ((t - minT) / (maxT - minT)) * 20;
+
+  const POINT_COLORS = [
+    '#0D9488','#F97316','#6366F1','#F59E0B','#EC4899',
+    '#3B82F6','#EF4444','#8B5CF6','#14B8A6','#64748B'
+  ];
+
+  const datasets = SCATTER_DATA.map((d, i) => ({
+    label: d.lang,
+    data: [{ x: d.pct_remote, y: d.total, r: normalize(d.total) }],
+    backgroundColor: POINT_COLORS[i] + 'CC',
+    borderColor: POINT_COLORS[i],
+    borderWidth: 2,
+    clip: false
+  }));
+
+  charts.rq1Scatter = new Chart(document.getElementById('rq1ScatterChart'), {
+    type: 'bubble',
+    data: { datasets },
+    options: {
+      responsive: true,
+      layout: { padding: { top: 28 } },
+      clip: false,
+      plugins: {
+        legend: { display: false },
+        datalabels: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const d = SCATTER_DATA[ctx.datasetIndex];
+              return [
+                ` ${d.lang}`,
+                ` Remoto: ${d.pct_remote}%`,
+                ` Usuários: ${d.total.toLocaleString('pt-BR')}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: 23, max: 38,
+          title: { display:true, text:'% Trabalho Remoto', color:'#64748B', font:{size:12} },
+          grid: { color:'#F1F5F9' },
+          ticks: { callback: v => v+'%', color:'#64748B', font:{size:11} }
+        },
+        y: {
+          min: 4000, max: 18500,
+          title: { display:true, text:'Número de usuários', color:'#64748B', font:{size:12} },
+          grid: { color:'#F1F5F9' },
+          ticks: { callback: v => v.toLocaleString('pt-BR'), color:'#64748B', font:{size:11} }
+        }
+      }
+    },
+    plugins: [{
+      id: 'bubbleLabels',
+      afterDatasetsDraw(chart) {
+        const {ctx} = chart;
+        ctx.save();
+        chart.data.datasets.forEach((ds, i) => {
+          const meta = chart.getDatasetMeta(i);
+          if (!meta.hidden && meta.data[0]) {
+            const pt = meta.data[0];
+            ctx.font = '600 11px Inter, sans-serif';
+            ctx.fillStyle = '#1E293B';
+            ctx.textAlign = 'center';
+            ctx.fillText(ds.label, pt.x, pt.y - pt.options.radius - 6);
+          }
+        });
+        ctx.restore();
+      }
+    }]
+  });
+}
+
+// ── RQ2 Box Plot ──
+function buildRQ2BoxChart() {
+  destroyChart('rq2Box');
+  const labels = Object.keys(BOXPLOT_DATA);
+  const dataset = {
+    label: 'Anos de experiência',
+    data: labels.map(k => {
+      const d = BOXPLOT_DATA[k];
+      return { min: d.min, q1: d.q1, median: d.median, q3: d.q3, max: d.max };
+    }),
+    backgroundColor: LIKERT_COLORS.map(c => c + '55'),
+    borderColor: LIKERT_COLORS,
+    borderWidth: 2,
+    medianColor: LIKERT_COLORS,
+    outlierRadius: 0
+  };
+
+  charts.rq2Box = new Chart(document.getElementById('rq2BoxChart'), {
+    type: 'boxplot',
+    data: { labels, datasets: [dataset] },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        datalabels: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const k = labels[ctx.dataIndex];
+              const d = BOXPLOT_DATA[k];
+              return [
+                ` Mediana: ${d.median} anos`,
+                ` Q1–Q3: ${d.q1}–${d.q3} anos`,
+                ` Min–Max: ${d.min}–${d.max} anos`,
+                ` n = ${d.n.toLocaleString('pt-BR')}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid:{display:false}, ticks:{color:'#475569', font:{size:12, weight:'500'}} },
+        y: {
+          min: 0, max: 45,
+          title: { display:true, text:'Anos de experiência', color:'#64748B', font:{size:12} },
+          grid: { color:'#F1F5F9' },
+          ticks: { color:'#64748B', font:{size:11} }
+        }
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  WORK MODEL FILTER (Caracterização)
+// ══════════════════════════════════════════════════════════
+
+// Scale factors by work model (simulate subset of respondents)
+const WORK_SCALE = {
+  "all":                   1.000,
+  "Remoto":                0.330,
+  "Presencial":            0.163,
+  "Híbrido (+ presencial)":0.199,
+  "Híbrido (+ flexível)":  0.178,
+  "Escolha própria":       0.131
+};
+
+function scaleData(raw, factor) {
+  return raw.map(d => ({...d, value: Math.round(d.value * factor)}));
+}
+
+function applyWorkFilter() {
+  const val = document.getElementById('workFilter').value;
+  const f = WORK_SCALE[val];
+  buildAgeChart(scaleData(AGE_RAW, f));
+  buildEduChart(scaleData(EDU_RAW, f));
+  buildCountryChart(scaleData(COUNTRY_RAW, f));
+  buildLangChart(scaleData(LANG_RAW, f));
+}
+
+// ══════════════════════════════════════════════════════════
+//  TAB NAVIGATION
+// ══════════════════════════════════════════════════════════
+
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+
+  // lazy-build RQ charts on first visit
+  if (id === 'rq1') {
+    if (!charts.rq1) buildRQ1Chart();
+    if (!charts.rq1Scatter) buildRQ1ScatterChart();
+  }
+  if (id === 'rq2') {
+    if (!charts.rq2Sent) buildRQ2SentChart();
+    if (!charts.rq2Trust) buildRQ2TrustChart();
+    if (!charts.rq2Box) buildRQ2BoxChart();
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  buildAgeChart(AGE_RAW);
+  buildEduChart(EDU_RAW);
+  buildWorkChart();
+  buildCountryChart(COUNTRY_RAW);
+  buildLangChart(LANG_RAW);
+});
+</script>
+</body>
+</html>
